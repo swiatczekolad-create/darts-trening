@@ -1,0 +1,13 @@
+{
+  "name": "Darts Trening",
+  "short_name": "Darts",
+  "description": "Trening celności w darta: Around the Clock z bonusową turą, Bob's 27, Shanghai, X01, gra z botem i ze znajomymi.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f1512",
+  "theme_color": "#0f1512",
+  "lang": "pl",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

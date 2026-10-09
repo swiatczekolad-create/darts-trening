@@ -6,7 +6,7 @@ Aplikacja (PWA) do treningu celności w darta. Działa w przeglądarce na telefo
 
 | Tryb | Co ćwiczy |
 |---|---|
-| **Around the Clock+** | 1→20→Bull. **3 trafienia w turze = bonusowa tura** (powtarza się, dopóki trafiasz 3/3). Wariant B: double = +2 pola, treble = +3 pola. Opcje: tylko double / tylko treble, kolejność po tarczy, bez Bulla. |
+| **Around the Clock+** | 1→20→Bull→20→1 (tam i z powrotem; opcjonalnie tylko w górę). **3 trafienia w turze = bonusowa tura** (powtarza się, dopóki trafiasz 3/3). Wariant B: double = +2 pola, treble = +3 pola. Opcje: tylko double / tylko treble, kolejność po tarczy, bez Bulla. |
 | Bob's 27 | Double D1–D20 + Bull |
 | Shanghai | S/D/T jednego numeru, Shanghai = natychmiastowa wygrana |
 | Halve-It | Presja: pudło w rundzie = połowa punktów |
@@ -22,6 +22,11 @@ Aplikacja (PWA) do treningu celności w darta. Działa w przeglądarce na telefo
 - **Online ze znajomymi**: host tworzy pokój (5-znakowy kod lub link), goście dołączają ze swoich telefonów. Połączenie peer-to-peer (WebRTC, PeerJS), bez kont i bez własnego serwera.
 
 Statystyki (rekordy, trend, skuteczność na poszczególnych polach) są zapisywane lokalnie w przeglądarce.
+
+## Hosting
+
+Produkcja: https://sajt.com.pl (serwer Hetzner, nginx). Wdrożenie: `./deploy.sh`.
+Kopia na GitHub Pages: https://swiatczekolad-create.github.io/darts-trening/
 
 ## Uruchomienie
 

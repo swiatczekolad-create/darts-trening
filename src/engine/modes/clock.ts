@@ -9,7 +9,17 @@ interface S {
 
 const seqFor = (o: Opts) => {
   const base = o.order === 'board' ? ORDER : Array.from({ length: 20 }, (_, i) => i + 1);
-  return o.bull === 'yes' ? [...base, 25] : base;
+  const up = o.bull === 'yes' ? [...base, 25] : base;
+  if (o.dir !== 'back') return up;
+  // Tam i z powrotem: po Bullu schodzimy 20 → 1 (bez Bulla: 20 → … → 1 bez powtarzania 20).
+  const down = [...base].reverse();
+  return o.bull === 'yes' ? [...up, ...down] : [...up, ...down.slice(1)];
+};
+
+/** Bulla nie da się przeskoczyć double/treble w drodze w górę. */
+const clampBull = (seq: number[], from: number, to: number) => {
+  const b = seq.indexOf(25);
+  return b >= 0 && from < b ? Math.min(to, b) : to;
 };
 
 const targetDart = (seg: number, o: Opts): Dart => {
@@ -31,10 +41,10 @@ export const clock: ModeDef<S> = {
   id: 'clock',
   name: 'Around the Clock+',
   category: 'Celność',
-  tagline: 'Zegar z bonusową turą za 3 trafienia z rzędu',
+  tagline: 'Zegar 1 → Bull → 1 z bonusową turą za 3 trafienia z rzędu',
   race: true,
   rules: [
-    'Trafiasz kolejno pola od 1 do 20, a na koniec Bulla (kolejność i finisz można zmienić w opcjach).',
+    'Trafiasz kolejno pola od 1 do 20, potem Bulla, a następnie schodzisz z powrotem od 20 do 1 (w opcjach: tylko w górę, kolejność po tarczy, bez Bulla).',
     'Każde trafienie w aktualny cel przesuwa cię na następne pole.',
     'Wariant B (domyślnie): double przesuwa o 2 pola, a treble o 3. Nie da się przeskoczyć Bulla.',
     'Bonusowa tura: jeśli w turze trafisz wszystkimi 3 lotkami, rzucasz od razu kolejną turę. Bonusowe tury trwają tak długo, jak trafiasz 3 z 3.',
@@ -63,6 +73,15 @@ export const clock: ModeDef<S> = {
       showIf: (o) => o.target === 'any',
     },
     {
+      key: 'dir',
+      label: 'Przebieg',
+      def: 'back',
+      choices: [
+        { v: 'back', l: '1 → Bull → 1 (tam i z powrotem)' },
+        { v: 'up', l: '1 → Bull (tylko w górę)' },
+      ],
+    },
+    {
       key: 'bonus',
       label: 'Bonusowa tura za 3/3',
       def: 'yes',
@@ -82,7 +101,7 @@ export const clock: ModeDef<S> = {
     },
     {
       key: 'bull',
-      label: 'Finisz na Bullu',
+      label: 'Bull na szczycie',
       def: 'yes',
       choices: [
         { v: 'yes', l: 'Tak' },
@@ -102,7 +121,7 @@ export const clock: ModeDef<S> = {
     if (hit) {
       const adv = skipOn(o) && seg !== 25 ? d.mult : 1;
       idx += adv;
-      if (o.bull === 'yes' && seg !== 25) idx = Math.min(idx, seq.length - 1);
+      idx = clampBull(seq, s.idx, idx);
       const moved = idx - s.idx;
       if (moved > 1) msg = { text: `+${moved} pola!`, kind: 'info' as const };
     }
@@ -134,7 +153,7 @@ export const clock: ModeDef<S> = {
     return {
       big: done ? '✓' : dartLabel(t),
       bigLabel: 'Cel',
-      sub: `Pole ${Math.min(s.idx + 1, seq.length)} z ${seq.length}`,
+      sub: `${g.opts.dir === 'back' ? (s.idx >= seq.length / 2 ? '↓ w dół · ' : '↑ w górę · ') : ''}Pole ${Math.min(s.idx + 1, seq.length)} z ${seq.length}`,
       hint: `${st.darts} lotek · skuteczność ${st.judged ? Math.round((st.hits / st.judged) * 100) : 0}%${st.bonusTurns ? ` · bonusy: ${st.bonusTurns}` : ''}`,
       scoreLine: done ? `Koniec: ${st.darts} lotek` : `→ ${dartLabel(t)}  (${s.idx}/${seq.length})`,
       targets: done ? [] : hl(t, g.opts.target === 'any'),

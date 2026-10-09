@@ -27,10 +27,10 @@ describe('Around the Clock+', () => {
   });
 
   it('wariant B: double +2, treble +3, nie przeskakuje Bulla', () => {
-    let g = newGame('clock', {}, [me]);
+    let g = newGame('clock', { dir: 'up' }, [me]);
     g = play(g, [D(1), T(3)]);
     expect(g.ps[0].idx).toBe(5); // 1 -> 3 -> 6
-    g = newGame('clock', {}, [me]);
+    g = newGame('clock', { dir: 'up' }, [me]);
     g.ps[0].idx = 18; // cel 19
     g = applyDart(g, T(19));
     expect(g.ps[0].idx).toBe(20); // Bull
@@ -39,9 +39,24 @@ describe('Around the Clock+', () => {
   });
 
   it('bez Bulla treble na 19 kończy grę', () => {
-    let g = newGame('clock', { bull: 'no' }, [me]);
+    let g = newGame('clock', { bull: 'no', dir: 'up' }, [me]);
     g.ps[0].idx = 18;
     g = applyDart(g, T(19));
+    expect(g.status).toBe('finished');
+  });
+
+  it('tam i z powrotem: 1 → 20 → Bull → 20 → 1', () => {
+    let g = newGame('clock', {}, [me]);
+    g.ps[0].idx = 18; // cel 19
+    g = applyDart(g, T(19)); // nie przeskakuje Bulla
+    expect(g.ps[0].idx).toBe(20);
+    g = applyDart(g, { seg: 25, mult: 1 });
+    expect(g.status).toBe('playing');
+    g = applyDart(g, S(20)); // w dół: 20
+    g = applyDart(g, T(19)); // 19 -> +3 => cel 16
+    expect(g.ps[0].idx).toBe(25);
+    g.ps[0].idx = 40; // cel 1
+    g = applyDart(g, S(1));
     expect(g.status).toBe('finished');
   });
 
@@ -52,7 +67,7 @@ describe('Around the Clock+', () => {
   });
 
   it('wyścig: pierwszy kończący wygrywa', () => {
-    let g = newGame('clock', { bull: 'no' }, [me, you]);
+    let g = newGame('clock', { bull: 'no', dir: 'up' }, [me, you]);
     g.ps[1].idx = 19;
     g = play(g, [MISS, MISS, MISS, S(20)]);
     expect(g.status).toBe('finished');
